@@ -1,0 +1,30 @@
+# Core deep learning (PyTorch stack — chosen for uniform multi-architecture benchmarking via timm)
+torch==2.2.2
+torchvision==0.17.2
+timm==0.9.16
+
+# Data / numerics
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.4.2
+scipy==1.13.0
+statsmodels==0.14.2
+
+# Image processing
+opencv-python==4.9.0.80
+Pillow==10.3.0
+albumentations==1.4.4
+
+# Visualisation
+matplotlib==3.8.4
+seaborn==0.13.2
+
+# Explainability
+grad-cam==1.5.0
+
+# Experiment tracking (optional but recommended)
+wandb==0.16.6
+
+# Config / utilities
+PyYAML==6.0.1
+tqdm==4.66.4

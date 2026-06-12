@@ -1,0 +1,81 @@
+# ===========================================================================
+# Central configuration for the Brain Tumor MRI Classification thesis project.
+# Every script reads this file so that all experiments share identical settings
+# (the fair-comparison principle). Override any value on the command line, e.g.
+#   python scripts/03_train_all.py --epochs.head 5
+# ===========================================================================
+
+seed: 42
+
+paths:
+  raw_dir: data/raw            # expects raw_dir/Training/<class>/*.jpg and raw_dir/Testing/...
+  processed_dir: data/processed
+  splits_dir: data/splits
+  results_dir: experiments/results
+  figures_dir: figures
+  weights_dir: experiments/weights
+
+data:
+  classes: [glioma, meningioma, notumor, pituitary]
+  image_size: 224
+  clahe:
+    enabled: true
+    clip_limit: 2.0
+    tile_grid: 8
+  split:
+    train: 0.70
+    val: 0.15
+    test: 0.15
+
+augment:
+  rotation_deg: 15
+  translate: 0.08
+  zoom: 0.10
+  brightness: 0.15
+  horizontal_flip: true      # brain has approximate left-right symmetry — anatomically valid
+  vertical_flip: false       # invalid for axial brain MRI
+  # advanced (used by specific ablations)
+  mixup_alpha: 0.0
+  cutmix_alpha: 0.0
+  random_erasing: 0.0
+
+train:
+  batch_size: 32
+  num_workers: 4
+  optimizer: adamw           # one of: sgd | adam | adamw
+  weight_decay: 1.0e-4
+  label_smoothing: 0.1
+  loss: focal                # one of: ce | weighted_ce | focal
+  focal_gamma: 2.0
+  focal_alpha: 0.25
+  scheduler: cosine          # one of: plateau | cosine
+  warmup_epochs: 5
+  grad_clip: 1.0
+  mixed_precision: true
+  early_stopping_patience: 12
+  epochs:
+    head: 10                 # stage 1: frozen backbone, train classifier head
+    finetune: 30             # stage 2: unfreeze top blocks
+  lr:
+    head: 1.0e-3
+    finetune: 1.0e-5
+  finetune_unfreeze_blocks: 30   # number of trailing backbone layers to unfreeze
+
+models:
+  # name -> timm identifier (custom_cnn and attention variants handled in code)
+  custom_cnn:        custom_cnn
+  vgg16:             vgg16
+  resnet50:          resnet50
+  inception_v3:      inception_v3
+  densenet121:       densenet121
+  efficientnet_b0:   efficientnet_b0
+  efficientnet_b3:   efficientnet_b3
+  resnet50_se:       resnet50          # + SE block (added in code)
+  efficientnet_b3_cbam: efficientnet_b3  # + CBAM block (added in code) — PROPOSED MODEL
+
+proposed_model: efficientnet_b3_cbam
+ensemble_topk: 3
+
+eval:
+  tta: false                 # test-time augmentation
+  cv_folds: 5
